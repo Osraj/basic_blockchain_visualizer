@@ -1,0 +1,542 @@
+:root {
+  /* Define reusable color and style variables */
+  --block-border-valid: #4a90e2;
+  --block-bg-valid-tx: #eaf2fa;
+  --block-bg-valid-coinbase: #e6f7f0;
+  --block-bg-valid-genesis: #f8f9fa;
+  --block-border-invalid: #e63946;
+  --block-bg-invalid: #fdecea;
+  --link-valid: #7baedc;
+  --link-invalid: #f58a92;
+  --primary-color: #1d3557;
+  --secondary-color: #457b9d;
+  --success-color: #2a9d8f;
+  --danger-color: #e63946;
+  --bg-light: #f4f7f6;
+  --bg-white: #ffffff;
+  --text-dark: #2f3e46;
+  --text-muted: #6c757d;
+  --icon-coinbase: #2a9d8f;
+  --icon-tx: #457b9d;
+  --icon-valid: #28a745;
+  --icon-invalid: #dc3545;
+}
+
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background-color: var(--bg-light);
+  padding: 20px;
+  display: flex; /* Use flexbox for overall page structure */
+  flex-direction: column; /* Stack elements vertically */
+  align-items: center; /* Center content horizontally */
+  color: var(--text-dark);
+}
+
+h1 {
+  color: var(--primary-color);
+  text-align: center;
+  margin-bottom: 25px;
+  font-weight: 600;
+}
+
+h2,
+h3 {
+  color: var(--primary-color);
+  text-align: center;
+  margin-bottom: 15px;
+  font-weight: 600;
+}
+
+.main-layout {
+  display: flex; /* Arrange sidebar and main content side-by-side */
+  flex-wrap: wrap; /* Allow items to wrap to the next line on smaller screens */
+  gap: 30px; /* Space between sidebar and main content */
+  width: 98%;
+  max-width: 1600px;
+  margin: 0 auto; /* Center the layout container */
+  align-items: flex-start; /* Align children to the top */
+}
+
+.sidebar {
+  /* flex: flex-grow flex-shrink flex-basis */
+  /* Don't grow, don't shrink, start at 380px width */
+  flex: 0 0 380px;
+  display: flex;
+  flex-direction: column; /* Stack controls and balances vertically */
+  gap: 25px; /* Space between items inside the sidebar */
+}
+
+.main-content {
+  flex: 1; /* Allow this container to grow and take available space */
+  /* Prevents flex item from overflowing its container, crucial for scrollable children */
+  min-width: 0;
+}
+
+.container {
+  background-color: var(--bg-white);
+  padding: 25px 30px;
+  border-radius: 12px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+  margin-bottom: 0; /* Spacing now handled by flex gap in .main-layout/.sidebar */
+}
+
+.controls fieldset {
+  border: 1px solid #dbe4f0;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+.controls legend {
+  font-weight: 600;
+  padding: 0 10px;
+  color: var(--secondary-color);
+  font-size: 1.15em;
+}
+.controls label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  font-size: 0.95em;
+  color: #555;
+}
+.controls input[type="text"],
+.controls input[type="number"] {
+  /* Calculate width to account for padding */
+  width: calc(100% - 24px);
+  padding: 11px;
+  margin-bottom: 15px;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  font-size: 1em;
+  box-sizing: border-box; /* Include padding and border in the element's total width */
+  transition: border-color 0.2s ease;
+}
+.controls input:focus {
+  border-color: var(--secondary-color);
+  outline: none; /* Remove default browser outline */
+}
+.controls button {
+  padding: 13px 25px;
+  background: linear-gradient(
+    145deg,
+    var(--secondary-color),
+    var(--primary-color)
+  );
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1.1em;
+  font-weight: bold;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease; /* Animate transform and shadow changes */
+  display: block;
+  width: 100%;
+  margin-top: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+.controls button:hover:not(:disabled) {
+  transform: translateY(-2px); /* Slight lift effect on hover */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+.controls button:disabled {
+  background: #adb5bd;
+  cursor: not-allowed; /* Indicate non-interactive state */
+  box-shadow: none;
+  transform: none;
+}
+
+.main-content h2 {
+  margin-top: 0;
+  text-align: left;
+  padding-left: 10px;
+  margin-bottom: 15px;
+}
+
+#blockchain-container {
+  width: 100%;
+  overflow-x: auto; /* Enable horizontal scrolling */
+  overflow-y: hidden; /* Disable vertical scrolling */
+  padding: 25px 0;
+  background-color: #e9eef2;
+  border-radius: 10px;
+  margin-top: 0;
+  white-space: nowrap; /* Prevent blocks from wrapping to the next line */
+  position: relative; /* Needed for absolute positioning of pseudo-elements */
+  min-height: 380px;
+  box-sizing: border-box;
+}
+
+#blockchain {
+  display: inline-flex; /* Arrange blocks horizontally within the scrolling container */
+  padding: 0 25px;
+}
+
+.block {
+  border: 3px solid var(--block-border-valid);
+  border-radius: 12px;
+  padding: 18px 22px;
+  margin: 0 18px;
+  width: 340px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  transition:
+    border-color 0.4s ease,
+    background-color 0.4s ease,
+    transform 0.2s ease;
+  display: inline-block; /* Fallback if flex isn't supported, works with nowrap */
+  vertical-align: top; /* Align blocks at the top */
+  white-space: normal; /* Allow text inside the block to wrap */
+  animation: popIn 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55); /* Apply pop-in animation */
+  position: relative; /* Needed for positioning the ::before pseudo-element */
+  background-color: var(--block-bg-valid-tx);
+}
+.block:hover {
+  transform: translateY(-3px) scale(1.01); /* Lift and slightly enlarge on hover */
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.12);
+}
+/* Specific background colors based on block type */
+.block.block-type-genesis {
+  background-color: var(--block-bg-valid-genesis);
+}
+.block.block-type-transaction {
+  background-color: var(--block-bg-valid-tx);
+}
+.block.block-type-coinbase {
+  background-color: var(--block-bg-valid-coinbase);
+  border-color: var(--success-color);
+}
+/* Styles for invalid blocks */
+.block.invalid {
+  border-color: var(--block-border-invalid);
+  background-color: var(--block-bg-invalid);
+}
+
+/* Connector line between blocks using a pseudo-element */
+.block:not(:first-child)::before {
+  content: ""; /* Required for pseudo-elements to show */
+  position: absolute; /* Position relative to the block */
+  left: -20px; /* Position to the left of the block */
+  top: 50%; /* Center vertically */
+  transform: translateY(-50%); /* Fine-tune vertical centering */
+  width: 22px; /* Width of the connector line */
+  height: 8px; /* Thickness of the line */
+  background-color: var(--link-valid);
+  z-index: -1; /* Place behind the block content */
+  transition: background-color 0.4s ease;
+  border-radius: 4px;
+}
+/* Style connector red if the current block is invalid OR the previous block was invalid */
+.block.invalid::before,
+.block.prev-invalid::before {
+  background-color: var(--link-invalid);
+}
+
+/* Keyframes for the block pop-in animation */
+@keyframes popIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  80% {
+    transform: scale(1.05); /* Slight overshoot */
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.block-header {
+  font-weight: 600;
+  margin-bottom: 15px;
+  color: var(--primary-color);
+  font-size: 1.15em;
+  border-bottom: 1px solid #dbe4f0;
+  padding-bottom: 10px;
+  display: flex; /* Align icon, text, and validity icon */
+  align-items: center; /* Vertically center items in the header */
+}
+.block.block-type-coinbase .block-header {
+  color: var(--success-color);
+}
+.block-icon {
+  margin-right: 10px;
+  font-size: 1.2em;
+  width: 20px; /* Ensure consistent spacing */
+  text-align: center;
+}
+/* Specific icon colors */
+.block-icon.fa-cube {
+  color: #999;
+}
+.block-icon.fa-right-left {
+  color: var(--icon-tx);
+}
+.block-icon.fa-sack-dollar {
+  color: var(--icon-coinbase);
+}
+
+.validity-icon {
+  margin-left: auto; /* Push validity icon to the far right */
+  font-size: 1.1em;
+}
+.validity-icon.fa-check-circle {
+  color: var(--icon-valid);
+}
+.validity-icon.fa-times-circle {
+  color: var(--icon-invalid);
+}
+/* Show only the correct validity icon */
+.block.invalid .validity-icon.fa-check-circle {
+  display: none;
+}
+.block:not(.invalid) .validity-icon.fa-times-circle {
+  display: none;
+}
+
+.block p,
+.block div.data-item {
+  margin: 10px 0;
+  word-wrap: break-word; /* Prevent long words/strings from overflowing */
+  font-size: 0.95em;
+  line-height: 1.5;
+}
+.block label {
+  font-weight: 600;
+  display: inline-block;
+  min-width: 95px; /* Align labels */
+  color: #555;
+}
+.block .hash,
+.block .prev-hash {
+  font-family: "Consolas", "Monaco", monospace; /* Use monospace for hashes */
+  font-size: 0.88em;
+  color: var(--text-muted);
+  word-break: break-all; /* Allow long hashes to break anywhere */
+  line-height: 1.3;
+  background-color: #f8f9fa;
+  padding: 2px 4px;
+  border-radius: 3px;
+}
+.block textarea.block-data-editor {
+  width: calc(100% - 18px); /* Adjust width considering padding */
+  min-height: 45px;
+  padding: 8px;
+  margin-top: 12px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 0.9em;
+  resize: vertical; /* Allow vertical resizing only */
+  font-family: inherit; /* Use the body's font */
+  background-color: #f8f9fa;
+}
+.block .nonce {
+  color: var(--success-color);
+  font-weight: bold;
+  background-color: #e6f7f0;
+  padding: 2px 4px;
+  border-radius: 3px;
+}
+
+#status-container {
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Center spinner and text */
+  margin-top: 15px;
+  min-height: 30px; /* Prevent layout shifts when status appears/disappears */
+}
+#mining-spinner {
+  display: none; /* Hidden by default, shown via JS */
+  margin-right: 10px;
+  font-size: 1.2em;
+  color: var(--primary-color);
+  animation: spin 1.5s linear infinite; /* Apply spinning animation */
+}
+/* Keyframes for the spinner rotation */
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+#status {
+  font-style: italic;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 6px;
+  text-align: center;
+}
+/* Background colors for different status types */
+#status.success {
+  color: var(--success-color);
+  background-color: #d1f7e8;
+}
+#status.error {
+  color: var(--danger-color);
+  background-color: #f8d7da;
+}
+#status.info {
+  color: var(--primary-color);
+  background-color: #cfe2ff;
+}
+
+#balances-display {
+  background-color: #e9ecef;
+}
+#balances-display h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: var(--secondary-color);
+  font-weight: 600;
+  text-align: left; /* Align header left within the balances container */
+}
+#balances-display ul {
+  list-style: none; /* Remove default bullet points */
+  padding: 0;
+  margin: 0;
+}
+#balances-display li {
+  padding: 8px 5px;
+  border-bottom: 1px solid #d8dde2;
+  font-size: 1.05em;
+  display: flex; /* Arrange name and balance horizontally */
+  justify-content: space-between; /* Push name left, balance right */
+  align-items: center; /* Vertically center name and balance */
+}
+#balances-display li:last-child {
+  border-bottom: none; /* Remove border from the last item */
+}
+#balances-display li span {
+  font-weight: bold;
+  color: var(--primary-color);
+  background-color: #fff;
+  padding: 2px 8px;
+  border-radius: 4px;
+  min-width: 40px; /* Ensure balance numbers align nicely */
+  text-align: right;
+}
+
+.readme-button-container {
+  text-align: center;
+  margin-top: 30px;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+.readme-button {
+  display: inline-block;
+  padding: 10px 16px;
+  background: linear-gradient(
+    145deg,
+    var(--primary-color),
+    var(--secondary-color)
+  );
+  color: white;
+  border-radius: 8px;
+  text-decoration: none; /* Remove underline from link */
+  font-weight: bold;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.readme-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.readme-button i {
+  margin-right: 8px; /* Space between icon and text */
+}
+
+.fa-user-hard-hat {
+  color: var(--primary-color);
+}
+
+/* --- Responsive Adjustments for smaller screens --- */
+@media (max-width: 900px) {
+  .main-layout {
+    flex-direction: column; /* Stack sidebar and main content vertically */
+    align-items: center; /* Center items horizontally when stacked */
+    width: 95%;
+  }
+
+  .sidebar {
+    flex-basis: auto; /* Allow sidebar height to be determined by content */
+    width: 100%;
+    max-width: 600px; /* Limit width on small screens */
+    order: 1; /* Ensure sidebar appears before main content */
+  }
+
+  .main-content {
+    width: 100%;
+    order: 2; /* Ensure main content appears after sidebar */
+  }
+
+  .main-content h2 {
+    text-align: center; /* Center the "Blockchain" heading */
+  }
+
+  #blockchain-container {
+    min-height: 300px; /* Reduce minimum height slightly */
+  }
+
+  .block {
+    width: 300px; /* Make blocks slightly narrower */
+    margin: 0 12px; /* Reduce horizontal margin */
+  }
+}
+
+
+/* --- Styles for the difficulty slider --- */
+.difficulty-slider-container {
+  display: flex; /* Align slider and value display horizontally */
+  align-items: center; /* Center items vertically */
+  gap: 12px; /* Space between slider and value display */
+  margin-top: 5px; /* Add some space above the slider */
+  margin-bottom: 15px; /* Space below like other inputs */
+}
+
+#difficulty-input[type="range"] {
+  flex-grow: 1; /* Allow slider to take up available space */
+  cursor: pointer; /* Indicate it's interactive */
+  height: 8px; /* Adjust slider track height */
+  background: #dbe4f0; /* Track background */
+  border-radius: 4px;
+  appearance: none; /* Override default look */
+  -webkit-appearance: none;
+}
+
+/* Style the slider thumb (the draggable part) */
+#difficulty-input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  background: var(--secondary-color);
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+#difficulty-input[type="range"]::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  background: var(--secondary-color);
+  border-radius: 50%;
+  cursor: pointer;
+  border: none; /* Remove default border in Firefox */
+}
+
+
+#difficulty-value-display {
+  font-weight: bold;
+  font-size: 1.1em;
+  color: var(--primary-color);
+  min-width: 20px; /* Ensure space for the number */
+  text-align: center;
+  background-color: #e9ecef;
+  padding: 3px 8px;
+  border-radius: 5px;
+}
